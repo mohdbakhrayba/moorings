@@ -358,7 +358,7 @@ class CancelBookingView(TemplateView):
 
         new_order = Order.objects.get(basket=basket)
         new_invoice = Invoice.objects.get(order_number=new_order.number)
-        update_payments(new_invoice.reference)
+        #update_payments(new_invoice.reference)
         book_inv, created = BookingInvoice.objects.get_or_create(booking=booking, invoice_reference=new_invoice.reference)
 
         #basket.status = 'Submitted'
@@ -398,7 +398,7 @@ class CancelBookingView(TemplateView):
             bpoint_refund.crn1 = new_invoice.reference
             bpoint_refund.save()
             update_payments(invoice.reference)
-            update_payments(new_invoice.reference)
+        update_payments(new_invoice.reference)
  
         invoice.voided = True
         invoice.save()
