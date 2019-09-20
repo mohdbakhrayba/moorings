@@ -38,7 +38,7 @@ def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email,template_group,a
     override_email = env('OVERRIDE_EMAIL', None)
     context['default_url'] = env('DEFAULT_HOST', '')
     context['default_url_internal'] = env('DEFAULT_URL_INTERNAL', '')
-    log_hash = int(hashlib.sha1(str(datetime.datetime.now())).hexdigest(), 16) % (10 ** 8)
+    log_hash = int(hashlib.sha1(str(datetime.datetime.now()).encode('utf-8')).hexdigest(), 16) % (10 ** 8)
 
     if email_delivery != 'on':
         print ("EMAIL DELIVERY IS OFF NO EMAIL SENT -- email.py ")

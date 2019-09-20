@@ -1919,7 +1919,7 @@ class BaseAvailabilityViewSet2(viewsets.ReadOnlyModelViewSet):
                  current_booking_obj = MooringsiteBooking.objects.filter(booking=ongoing_booking).values('campsite','from_dt','to_dt','booking_period_option')
                  old_booking_obj = MooringsiteBooking.objects.filter(booking=ongoing_booking.old_booking).values('campsite','from_dt','to_dt','booking_period_option')
                  # compare old and new booking for changes
-                 if hashlib.md5(str(current_booking_obj)).hexdigest() == hashlib.md5(str(old_booking_obj)).hexdigest():
+                 if hashlib.md5(str(current_booking_obj).encode('utf-8')).hexdigest() == hashlib.md5(str(old_booking_obj).encode('utf-8')).hexdigest():
                        booking_changed = False
                  if utils.check_mooring_admin_access(request) is True:
                        booking_changed = True

@@ -629,18 +629,26 @@ class RefundPaymentView(TemplateView):
              order_response = place_order_submission(request)
              new_order = Order.objects.get(basket=basket)
              new_invoice = Invoice.objects.get(order_number=new_order.number)
+             new_invoice.settlement_date = None
+             new_invoice.save()
+             print ("INVOICE NEW")
+             print (new_invoice)
+             print (new_invoice.settlement_date)
+              
 #             book_inv, created = BookingInvoice.objects.create(booking=booking, invoice_reference=invoice.reference)
 
              BookingInvoice.objects.get_or_create(booking=booking, invoice_reference=new_invoice.reference)
              if refund:
                  invoice.voided = True
                  invoice.save()
-
-                 bpoint_refund = BpointTransaction.objects.get(txn_number=refund)
+                 print ("REFUND")
+                 print (refund)
+                 print (refund.txn_number)
+                 bpoint_refund = BpointTransaction.objects.get(txn_number=refund.txn_number)
                  bpoint_refund.crn1 = new_invoice.reference
                  bpoint_refund.save()
                  update_payments(invoice.reference)
-                 update_payments(new_invoice.reference)
+             update_payments(new_invoice.reference)
 
 
              ## Send booking confirmation and invoice
