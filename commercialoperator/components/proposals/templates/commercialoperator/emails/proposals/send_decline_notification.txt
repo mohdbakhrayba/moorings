@@ -1,7 +1,0 @@
-{%  extends 'commercialoperator/emails/base_email.txt' %}
-
-{%  block content %}
-   
-        An Application {{proposal.lodgement_number}} has been declined.
-
-{%  endblock %}
