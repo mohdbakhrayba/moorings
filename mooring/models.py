@@ -1680,16 +1680,12 @@ class RegisteredVessels(models.Model):
         sticker_l = self.sticker_l
         sticker_au = self.sticker_au
         sticker_an = self.sticker_an
-        print (sticker_l)
-        print (sticker_au)
-        print (sticker_an)
-        if isinstance(sticker_l, NoneType):
-             sticker_l = 0
-        if isinstance(sticker_au, NoneType):
+        if sticker_l is None:
+            sticker_l = 0
+        if sticker_au is None:
              sticker_au = 0
-        if isinstance(sticker_an, NoneType):
+        if sticker_an is None:
             sticker_an = 0
-
 
         if sticker_l > 0 or sticker_au > 0 or sticker_an > 0:
             return True
