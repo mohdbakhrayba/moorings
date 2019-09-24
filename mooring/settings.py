@@ -1,6 +1,17 @@
+import os
+import confy
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+confy.read_environment_file(BASE_DIR+"/.env")
+os.environ.setdefault("BASE_DIR", BASE_DIR)
 from ledger.settings_base import *
 from decimal import Decimal
-import os
+
+BASE_DIR = None
+BASE_DIR_ENV = env('BASE_DIR',None)
+if BASE_DIR_ENV is None:
+   BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+else:
+   BASE_DIR = BASE_DIR_ENV
 
 ROOT_URLCONF = 'mooring.urls'
 SITE_ID = 1
@@ -16,6 +27,7 @@ INSTALLED_APPS += [
     'rest_framework',
     'rest_framework_gis',
     'crispy_forms',
+    'ledger',
 ]
 
 MIDDLEWARE_CLASSES += [
