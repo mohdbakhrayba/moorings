@@ -397,7 +397,9 @@ class CancelBookingView(TemplateView):
             bpoint_refund = BpointTransaction.objects.get(txn_number=refund)
             bpoint_refund.crn1 = new_invoice.reference
             bpoint_refund.save()
-            update_payments(invoice.reference)
+
+
+        update_payments(invoice.reference)
         update_payments(new_invoice.reference)
  
         invoice.voided = True
@@ -413,6 +415,9 @@ class CancelBookingView(TemplateView):
             booking_admission.cancelation_time = datetime.now()
             booking_admission.canceled_by = request.user
             booking_admission.save()
+
+        update_payments(invoice.reference)
+        update_payments(new_invoice.reference)
 
         if failed_refund is True:
             # Refund Failed Assign Refund amount to allocation pool.
