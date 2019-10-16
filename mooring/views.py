@@ -393,8 +393,14 @@ class CancelBookingView(TemplateView):
                 invoice = Invoice.objects.get(reference=bi.invoice_reference)
             RefundFailed.objects.create(booking=booking, invoice_reference=invoice.reference, refund_amount=b_total,status=0, basket_json=None)
 
+
+
+        new_invoice.settlement_date = None
+        new_invoice.save()
+
         if refund:
-            bpoint_refund = BpointTransaction.objects.get(txn_number=refund)
+            print ("DID REFUND HAPPEN")
+            bpoint_refund = BpointTransaction.objects.get(txn_number=refund.txn_number)
             bpoint_refund.crn1 = new_invoice.reference
             bpoint_refund.save()
 
@@ -542,7 +548,7 @@ class CancelAdmissionsBookingView(TemplateView):
             RefundFailed.objects.create(admission_booking=booking, invoice_reference=invoice.reference, refund_amount=b_total,status=0,basket_json=booking_cancellation_fees)
 
         if refund:
-            bpoint_refund = BpointTransaction.objects.get(txn_number=refund)
+            bpoint_refund = BpointTransaction.objects.get(txn_number=refund.txn_number)
             bpoint_refund.crn1 = new_invoice.reference
             bpoint_refund.save()
             update_payments(invoice.reference)
