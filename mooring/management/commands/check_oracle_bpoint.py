@@ -57,8 +57,10 @@ class Command(BaseCommand):
                  context = {
                      'error_report' : str(e)
                  }
+                 email_list = []
                  for email_to in settings.NOTIFICATION_EMAIL.split(","):
-                     sendHtmlEmail([email_to],"[MOORING] oracle and bpoint total mistatch",context,'mooring/email/oracle_bpoint.html',None,None,settings.EMAIL_FROM,'system-oim',attachments=None)
+                        email_list.append(email_to)
+                 sendHtmlEmail(tuple(email_list),"[MOORING] oracle and bpoint total mistatch",context,'mooring/email/oracle_bpoint.html',None,None,settings.EMAIL_FROM,'system-oim',attachments=None)
 
 
 
