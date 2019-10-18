@@ -33,13 +33,12 @@ class TemplateEmailBase(EmailBase):
     txt_template = 'mooring/email/base_email.txt'
 
 def sendHtmlEmail(to,subject,context,template,cc,bcc,from_email,template_group,attachments=None):
-
     email_delivery = env('EMAIL_DELIVERY', 'off')
     override_email = env('OVERRIDE_EMAIL', None)
     context['default_url'] = env('DEFAULT_HOST', '')
     context['default_url_internal'] = env('DEFAULT_URL_INTERNAL', '')
     log_hash = int(hashlib.sha1(str(datetime.datetime.now()).encode('utf-8')).hexdigest(), 16) % (10 ** 8)
-
+    email_log(str(log_hash)+' '+subject+":"+str(to)+":"+template_group)
     if email_delivery != 'on':
         print ("EMAIL DELIVERY IS OFF NO EMAIL SENT -- email.py ")
         return False
@@ -163,7 +162,6 @@ def send_admissions_booking_invoice(admissionsBooking, request, context_processo
 
 
 def send_booking_invoice(booking,request, context_processor):
-
     subject = 'Your booking invoice'
     template = 'mooring/email/booking_invoice.html'
     cc = None
@@ -171,7 +169,6 @@ def send_booking_invoice(booking,request, context_processor):
     from_email = None
     context= {'booking': booking, 'context_processor': context_processor}
     to = booking.customer.email
-
     filename = 'invoice-{}({}-{}).pdf'.format(booking.mooringarea.name,booking.arrival,booking.departure)
     references = [b.invoice_reference for b in booking.invoices.all()]
     invoice = Invoice.objects.filter(reference__in=references).order_by('-created')[0]
@@ -302,7 +299,6 @@ def send_booking_confirmation(booking,request,context_processor):
         'contact_list': contact_list,
         'context_processor': context_processor
     }
-
     att = BytesIO()
     mooring_booking = []
     if MooringsiteBooking.objects.filter(booking=booking).count() > 0:
@@ -317,10 +313,12 @@ def send_booking_confirmation(booking,request,context_processor):
         pdf.create_admissions_confirmation(att2, admissionsBooking, context_processor)
         att2.seek(0)
         filename = 'confirmation-AD{}.pdf'.format(admissionsBooking.id)
+        print ("SENDING SUCCESS EMAIL")
         sendHtmlEmail([email],subject,context,template,cc,bcc,from_email,template_group,attachments=[('confirmation-PS{}.pdf'.format(booking.id), att.read(), 'application/pdf'), (filename, att2.read(), 'application/pdf')])
         #email_obj.send([email], from_address=campground_email, context=context, cc=cc, bcc=bcc, attachments=[('confirmation-PS{}.pdf'.format(booking.id), att.read(), 'application/pdf'), (filename, att2.read(), 'application/pdf')])
     else:
         #email_obj.send([email], from_address=campground_email, context=context, cc=cc, bcc=bcc, attachments=[('confirmation-PS{}.pdf'.format(booking.id), att.read(), 'application/pdf')])
+        print ("SENDING SUCCESS EMAIL")
         sendHtmlEmail([email],subject,context,template,cc,bcc,from_email,template_group,attachments=[('confirmation-PS{}.pdf'.format(booking.id), att.read(), 'application/pdf')])
     booking.confirmation_sent = True
     booking.save()
