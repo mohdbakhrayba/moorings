@@ -225,7 +225,8 @@ def abort_booking_view(request, *args, **kwargs):
             # Redirect to the availability screen
             #return redirect(reverse('campsite_availaiblity_selector') + '?site_id={}'.format(c_id)) 
             #mooring_availaiblity2_selector
-            return redirect(reverse('mooring_availaiblity2_selector') + '?site_id={}&num_adult={}&num_children={}&num_infant={}&vessel_size={}&vessel_draft={}&vessel_beam={}&vessel_weight={}&vessel_rego={}'.format(c_id, num_adults, num_children, num_infants, vessel_size, vessel_draft, vessel_beam, vessel_weight, vessel_rego))
+            # +str(booking.mooringarea_id)+'&arrival='+str(booking.arrival.strftime('%Y/%m/%d'))+'&departure='+str(booking.departure.strftime('%Y/%m/%d'))
+            return redirect(reverse('mooring_availaiblity2_selector') + '?site_id={}&num_adult={}&num_children={}&num_infant={}&vessel_size={}&vessel_draft={}&vessel_beam={}&vessel_weight={}&vessel_rego={}&arrival={}&departure={}'.format(c_id, num_adults, num_children, num_infants, vessel_size, vessel_draft, vessel_beam, vessel_weight, vessel_rego, booking.arrival.strftime('%Y/%m/%d'), booking.departure.strftime('%Y/%m/%d')))
         else:
             # only ever delete a booking object if it's marked as temporary
             if booking.booking_type == 3:
