@@ -761,6 +761,7 @@ class MooringAreaViewSet(viewsets.ModelViewSet):
     @renderer_classes((JSONRenderer,))
     def datatable_list(self,request,format=None):
         queryset = cache.get('moorings_dt')
+        queryset = None
         if queryset is None:
             queryset = self.get_queryset()
             cache.set('moorings_dt',queryset,3600)
@@ -1350,12 +1351,12 @@ class MooringAreaViewSet(viewsets.ModelViewSet):
             
             serializer = MooringAreaPriceHistorySerializer(price_history,many=True,context={'request':request})
             res = serializer.data
-            for line in res:
-                for k, v in line.items():
-                    if k == "booking_period_id":
-                        period = BookingPeriod.objects.get(pk=v)
-                        line['period_name'] = period.name
-            return Response(res,status=http_status)
+            res2 = [] 
+            for l in res:
+               period = BookingPeriod.objects.get(pk=l['booking_period_id'])
+               res2.append({'date_start': l['date_start'],'date_end': l['date_end'], 'rate_id': l['rate_id'], 'mooring': l['mooring'], 'adult': l['mooring'], 'concession': l['concession'], 'child': l['child'], 'infant': l['infant'], 'editable': l['editable'], 'deletable': l['deletable'], 'reason': l['reason'], 'details': l['details'], 'booking_period_id': l['booking_period_id'],'price_id': l['price_id'],'period_name': period.name })
+                   
+            return Response(res2,status=http_status)
         except serializers.ValidationError:
             raise
         except ValidationError as e:
