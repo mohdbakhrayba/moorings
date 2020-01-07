@@ -2111,8 +2111,9 @@ class MarinaAreaListener(object):
     def _post_save(sender, instance, **kwargs):
         original_instance = getattr(instance, "_original_instance") if hasattr(instance, "_original_instance") else None
         if not original_instance:
+            pass
             # Create an opening booking range on creation of Campground
-             MooringAreaBookingRange.objects.create(campground=instance,range_start=datetime.now().date(),status=0)
+            #MooringAreaBookingRange.objects.create(campground=instance,range_start=datetime.now().date(),status=0)
         else:
             pass
             #if original_instance.price_level != instance.price_level:
