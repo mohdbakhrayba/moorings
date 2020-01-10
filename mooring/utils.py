@@ -1194,37 +1194,36 @@ def admissions_price_or_lineitems(request, admissionsBooking,lines=True):
     if adults > 1 and children > 1:
         if adults == children:
             if adults % 2 == 0:
-                family = adults/2
+                family = adults//2
                 adults = 0
                 children = 0
             else:
                 adults -= 1
-                family = adults/2
+                family = adults//2
                 adults = 1
                 children = 1
-
         elif adults > children: #Adults greater - tickets based on children
             if children % 2 == 0:
-                family = children/2
+                family = children//2
                 adults -= children
                 children = 0
             else:
                 children -= 1
-                family = children/2
+                family = children//2
                 adults -= children
                 children = 1
         else: #Children greater - tickets based on adults
             if adults % 2 == 0:
-                family = adults/2
+                family = adults//2
                 children -= adults
                 adults = 0
             else:
                 adults -= 1
-                family = adults/2
+                family = adults//2
                 children -= adults
                 adults = 1
-    people = {'Adults': adults,'Concessions': admissionsBooking.noOfConcessions,'Children': children,'Infants': admissionsBooking.noOfInfants, 'Family': family}
 
+    people = {'Adults': adults,'Concessions': admissionsBooking.noOfConcessions,'Children': children,'Infants': admissionsBooking.noOfInfants, 'Family': family}
     for adLine in admissionsLines:
         for group, amount in people.items():
             if line:
