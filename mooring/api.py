@@ -2746,31 +2746,94 @@ class AdmissionsBookingViewSet(viewsets.ModelViewSet):
         #bt = [0,1]
         #if canceled == str('True'):
         #   bt = [0,1,4]
+        print("LINE 1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))	
         bt = [0,1,4]
         recordsTotal = 0
         data = []
         data_temp = None
+        admission_booking_link = {}
+        booking_admission_link = {}
+        mooring_site_booking = {}
+        mooring_group_access = {}
+        admission_line_obj = {}
+        user_mooring_groups = []
+
         try:
             data_temp = AdmissionsBooking.objects.filter(booking_type__in=bt).order_by('-pk')
+            admission_line = AdmissionsLine.objects.all().values('admissionsBooking_id','location__mooring_group')
+            print (admission_line)
+            print("LINE 1.011", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            for al in admission_line:
+                  if al['admissionsBooking_id'] not in admission_line_obj:
+                       admission_line_obj[al['admissionsBooking_id']] = al
+                       
+            print("LINE 1.012", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+
             groups = MooringAreaGroup.objects.filter(members__in=[request.user,])
+            for group in groups:
+                if group.id not in mooring_group_access:
+                    mooring_group_access[group.id] = []
+                    user_mooring_groups.append(group.id)
+                for m in group.moorings.all():
+                    mooring_group_access[group.id].append(m.id) 
+            
+            #print (mooring_group_access)
+            #print (data_temp.count())
+            #print (MooringsiteBooking.objects.filter().values('booking__id','campsite__mooringarea','booking__admission_payment__id'))
+            msb_obj = MooringsiteBooking.objects.filter().values('booking__id','campsite__mooringarea','booking__admission_payment__id')
+            for ms in msb_obj:
+                   mooring_site_booking[ms['booking__id']] = ms
+            #print (mooring_site_booking)
+            print("LINE 1.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            ap = Booking.objects.all().values('id','admission_payment__id').exclude(admission_payment=None)
+            #print (ap)
+            for a in ap:
+                booking_admission_link[a['id']] = a['admission_payment__id']
+                admission_booking_link[a['admission_payment__id']] = a['id']
+            #print (admission_booking_link)
+            print("LINE 1.02", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             # If groups then we need to filter data by groups.
             if groups.count() > 0:
                 filtered_ids = []
                 for rec in data_temp:
-                    bookings = Booking.objects.filter(admission_payment=rec)
-                    if bookings.count() > 0:
-                        booking = bookings[0]
-                        msbs = MooringsiteBooking.objects.filter(booking=booking)
+                    #print("LINE 1.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+
+                    #bookings = Booking.objects.filter(admission_payment=rec)
+                    #if bookings.count() > 0:
+                    #print (admission_booking_link)
+                    #print (rec.id)
+                    if rec.id in admission_booking_link:
+                        #booking = bookings[0]
+                        #print("LINE 1.2", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+                        #msbs = MooringsiteBooking.objects.filter(booking__id=admission_booking_link[rec.id])
                         in_group = False
                         moorings = []
+                        #print ("GROUPS") 
                         for group in groups:
-                            for mooring in group.moorings.all():
+                            #print (group.id)
+                            #print (mooring_group_access[group.id])
+                            for mooring in mooring_group_access[group.id]:
                                 moorings.append(mooring)
-                        for msb in msbs:
-                            if msb.campsite.mooringarea in moorings:
-                                in_group = True
-                                break
-                        if in_group:
+                        #for mooring in mooring_group_access:
+                        #       moorings.append(mooring)
+ 
+                        #for msb in msbs:
+                        #print ("REC")
+                        #print (moorings)
+                        #print (rec.id)
+                       
+                        #print (mooring_site_booking[admission_booking_link[rec.id]])
+                        #in_group = True
+                        #data.append(rec)
+                        #if mooring_site_booking[admission_booking_link[rec.id]]['campsite__mooringarea'] in moorings:
+                        #    #if msb.campsite.mooringarea in moorings:
+                        #        print ("IN GROUP")
+                        #        in_group = True
+                        #        break
+                        #print (in_group)
+                        #in_group = True
+                        #if in_group:
+                        if mooring_site_booking[admission_booking_link[rec.id]]['campsite__mooringarea'] in moorings:
                             #filtered_ids.append(rec.id)
                             pass
                             if canceled == str('True'):
@@ -2780,10 +2843,21 @@ class AdmissionsBookingViewSet(viewsets.ModelViewSet):
                                 if rec.booking_type == 0 or rec.booking_type == 1:
                                   data.append(rec)
                             recordsTotal = recordsTotal  + 1
+                        #print("LINE 1.3", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                     else:
-                        ad_line = AdmissionsLine.objects.filter(admissionsBooking=rec).first()
-                        if ad_line:
-                            if ad_line.location.mooring_group in groups:
+                        #print("LINE 1.50", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+                        #ad_line = AdmissionsLine.objects.filter(admissionsBooking=rec).first()
+                        ad_line = None
+                        if rec.id in admission_line_obj:
+                                ad_line = admission_line_obj[rec.id]                
+                        if ad_line is not None:
+                            #print ("HERE")
+                            #print("LINE 1.51", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+                            #if ad_line.location.mooring_group in groups:
+                            #print (ad_line)
+                            #print (ad_line['location__mooring_group'])
+                            #print (user_mooring_groups)
+                            if ad_line['location__mooring_group'] in user_mooring_groups:
                                 if canceled == str('True'):
                                    if rec.booking_type == 4:
                                       data.append(rec)
@@ -2804,6 +2878,7 @@ class AdmissionsBookingViewSet(viewsets.ModelViewSet):
 #            recordsTotal = len(data)
 #            recordsTotal = AdmissionsBooking.objects.filter(booking_type__in=[0,1,4],`
             #search = request.GET.get('search[value]') if request.GET.get('search[value]') else None
+            print("LINE 2", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             search = request.GET.get('search_keyword') if request.GET.get('search_keyword') else None
             start = request.GET.get('start') if request.GET.get('start') else 0
             length = request.GET.get('length') if request.GET.get('length') else len(data)
@@ -2859,12 +2934,15 @@ class AdmissionsBookingViewSet(viewsets.ModelViewSet):
                       if date_match is True:
                            data_temp.append(row)
                 data = data_temp
-
+            print("LINE 3", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             #    data = data.distinct().filter(admissionsline__arrivalDate__lte=date_to)
+            #print (data)
             recordsFiltered = int(len(data))
             data = data[int(start):int(length)+int(start)]
             serializer = AdmissionsBookingSerializer(data,many=True)
             res = serializer.data
+            print("LINE 4", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+            #print (res)
             for r in res:
                 ad = AdmissionsBooking.objects.get(pk=r['id'])
                 adLines = AdmissionsLine.objects.filter(admissionsBooking=ad)
@@ -2893,7 +2971,6 @@ class AdmissionsBookingViewSet(viewsets.ModelViewSet):
                     future_or_admin = True
                 else:
                     future_or_admin = ad.in_future
-                
                 r.update({'invoice_ref': inv, 'in_future': future_or_admin, 'part_booking': ad.part_booking})
                 if(r['customer']):
                     name = ad.customer.first_name + " " + ad.customer.last_name
@@ -2901,7 +2978,7 @@ class AdmissionsBookingViewSet(viewsets.ModelViewSet):
                     r.update({'customerName': name, 'email': email})
                 else:
                     r.update({'customerName': 'No customer', 'email': "No customer"})
-            
+                print("LINE 5", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
         except Exception as e:
             res ={
                 "Error": str(e)
