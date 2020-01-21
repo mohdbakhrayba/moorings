@@ -2914,7 +2914,8 @@ class AdmissionsBookingViewSet(viewsets.ModelViewSet):
                 #    except:
                 #        pass
                 for row in data:
-                     if row.vesselRegNo_cache.find(search.lower()) >= 0  or row.warningReferenceNo_cache.find(search.lower()) >= 0 or row.customerFirstName_cache.find(search.lower()) >= 0 or str(row.id) == search or str(row.customerFirstName_cache+' '+row.customerLastName_cache).find(search.lower()) >= 0 or row.refNo_cache == search: 
+                     print (row.customerLastName_cache)
+                     if row.vesselRegNo_cache.find(search.lower()) >= 0  or row.warningReferenceNo_cache.find(search.lower()) >= 0 or row.customerFirstName_cache.lower().find(search.lower()) >= 0 or row.customerLastName_cache.lower().find(search.lower()) >= 0 or str(row.id) == search or str(row.customerFirstName_cache+' '+row.customerLastName_cache).find(search.lower()) >= 0 or row.refNo_cache == search: 
                      #if row.vesselRegNo.lower().find(search.lower()) >= 0 or row.warningReferenceNo.lower().find(search.lower()) >= 0 or row.customer.first_name.lower().find(search.lower()) >= 0 or row.customer.first_name.lower().find(search.lower()) >= 0 or str(row.id) == search or str(row.customer.first_name.lower()+' '+row.customer.last_name.lower()).find(search.lower()) >= 0 or 'AD'+str(row.id) == search:
                           data_temp.append(row)
                      data = data_temp
