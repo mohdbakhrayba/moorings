@@ -2757,11 +2757,24 @@ class AdmissionsBookingViewSet(viewsets.ModelViewSet):
         mooring_group_access = {}
         admission_line_obj = {}
         user_mooring_groups = []
-
+        customer_details_obj = {} 
+        ad_details_obj = {}
         try:
             data_temp = AdmissionsBooking.objects.filter(booking_type__in=bt).order_by('-pk')
+
+            ad_details = AdmissionsBooking.objects.filter(booking_type__in=bt).values('id','customer__id','customer__first_name','customer__last_name')
+
+            for cd in ad_details:
+                 ad_details_obj[cd['id']] = {'first': cd['customer__first_name'],'last': cd['customer__last_name']}
+
+            customer_details = AdmissionsBooking.objects.filter(booking_type__in=bt).values('customer__id','customer__first_name','customer__last_name', 'customer__email')
+            for cd in customer_details:
+                  if cd['customer__id'] not in customer_details_obj:
+                     customer_details_obj[cd['customer__id']] = {'first': cd['customer__first_name'],'last': cd['customer__last_name'], 'email': cd['customer__email'] } 
+            #print (customer_details_obj)
+
+
             admission_line = AdmissionsLine.objects.all().values('admissionsBooking_id','location__mooring_group')
-            print (admission_line)
             print("LINE 1.011", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             for al in admission_line:
                   if al['admissionsBooking_id'] not in admission_line_obj:
@@ -2796,6 +2809,13 @@ class AdmissionsBookingViewSet(viewsets.ModelViewSet):
             if groups.count() > 0:
                 filtered_ids = []
                 for rec in data_temp:
+                    rec.vesselRegNo_cache = str(rec.vesselRegNo.lower())
+                    rec.warningReferenceNo_cache  = str(rec.warningReferenceNo.lower())
+                    rec.customerID_cache = rec.id
+                    rec.customerFirstName_cache = ad_details_obj[rec.id]['first']  #str(rec.customer.first_name.lower())
+                    rec.customerLastName_cache =  ad_details_obj[rec.id]['last'] #str(rec.customer.last_name.lower())
+                    rec.refNo_cache = str('AD'+str(rec.id))
+                    #print (rec.vesselRegNo_cache)
                     #print("LINE 1.1", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
                     #bookings = Booking.objects.filter(admission_payment=rec)
@@ -2894,7 +2914,8 @@ class AdmissionsBookingViewSet(viewsets.ModelViewSet):
                 #    except:
                 #        pass
                 for row in data:
-                     if row.warningReferenceNo.lower().find(search.lower()) >= 0 or row.customer.first_name.lower().find(search.lower()) >= 0 or row.customer.first_name.lower().find(search.lower()) >= 0 or row.vesselRegNo.lower().find(search.lower()) >= 0 or str(row.id) == search or str(row.customer.first_name.lower()+' '+row.customer.last_name.lower()).find(search.lower()) >= 0 or 'AD'+str(row.id) == search:
+                     if row.vesselRegNo_cache.find(search.lower()) >= 0  or row.warningReferenceNo_cache.find(search.lower()) >= 0 or row.customerFirstName_cache.find(search.lower()) >= 0 or str(row.id) == search or str(row.customerFirstName_cache+' '+row.customerLastName_cache).find(search.lower()) >= 0 or row.refNo_cache == search: 
+                     #if row.vesselRegNo.lower().find(search.lower()) >= 0 or row.warningReferenceNo.lower().find(search.lower()) >= 0 or row.customer.first_name.lower().find(search.lower()) >= 0 or row.customer.first_name.lower().find(search.lower()) >= 0 or str(row.id) == search or str(row.customer.first_name.lower()+' '+row.customer.last_name.lower()).find(search.lower()) >= 0 or 'AD'+str(row.id) == search:
                           data_temp.append(row)
                      data = data_temp
                 #data = data.filter(Q(warningReferenceNo__icontains=search) | Q(vesselRegNo__icontains=search) | Q(customer__first_name__icontains=search) | Q(customer__last_name__icontains=search) | Q(id__icontains=search))
@@ -2973,7 +2994,8 @@ class AdmissionsBookingViewSet(viewsets.ModelViewSet):
                     future_or_admin = ad.in_future
                 r.update({'invoice_ref': inv, 'in_future': future_or_admin, 'part_booking': ad.part_booking})
                 if(r['customer']):
-                    name = ad.customer.first_name + " " + ad.customer.last_name
+                    #name = ad.customer.first_name + " " + ad.customer.last_name
+                    name = customer_details_obj[r['customer']]['first'] + " "+ customer_details_obj[r['customer']]['last']#r.customerFirstName_cache
                     email = ad.customer.email
                     r.update({'customerName': name, 'email': email})
                 else:
