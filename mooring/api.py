@@ -3021,7 +3021,7 @@ class BookingViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         from django.db import connection, transaction
         try:
-
+            print("MLINE 1.01", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             #search = request.GET.get('search[value]')
             search = request.GET.get('search_keyword')
             draw = request.GET.get('draw') if request.GET.get('draw') else None
@@ -3039,6 +3039,7 @@ class BookingViewSet(viewsets.ModelViewSet):
 
 
             moorings_user_groups = MooringAreaGroup.objects.filter(members__in=[request.user]).values('id','moorings')
+            print("MLINE 1.02", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             filter_query = Q()
             if canceled == 't':
                 filter_query &= Q(booking_type=4)
@@ -3049,9 +3050,11 @@ class BookingViewSet(viewsets.ModelViewSet):
             if arrival:
                  filter_query &= Q(departure__gt=arrival)
 
+            print("MLINE 1.03", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             booking_query = Booking.objects.filter(filter_query).order_by('-id')
             recordsTotal = Booking.objects.filter(Q(Q(booking_type=1) | Q(booking_type=4))).count()
             recordsFiltered = booking_query.count()
+            print("MLINE 1.04", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             # build predata
             booking_items = {}
             booking_item_query = Q()
@@ -3059,14 +3062,14 @@ class BookingViewSet(viewsets.ModelViewSet):
             for booking in booking_query: 
                   booking_item_query |= Q(booking_id=booking.id)
                   booking_items[booking.id] = []
-
+            print("MLINE 1.05", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
             if len(booking_items) > 0:
                 booking_items_object = MooringsiteBooking.objects.filter(booking_item_query).values('campsite__mooringarea__name','campsite__mooringarea__id','campsite_id','id','to_dt','from_dt','amount','booking_type','booking_period_option','booking_id','booking','date','campsite__mooringarea__park__district__region__name','campsite__mooringarea__park__district__region__id','campsite__name')
                 
                 for bi in booking_items_object: 
                       booking_items[bi['booking_id']].append({'id':bi['id'], 'campsite_id': bi['campsite_id'] , 'date' : bi['date'], 'from_dt': bi['from_dt'], 'to_dt': bi['to_dt'], 'amount': bi['amount'], 'booking_type' : bi['booking_type'], 'booking_period_option' :bi['booking_period_option'], 'campsite_name': bi['campsite__name'], 'region_name': bi['campsite__mooringarea__park__district__region__name'],'mooring_name': bi['campsite__mooringarea__name'], 'region_id': bi['campsite__mooringarea__park__district__region__id'], 'mooringarea_id': bi['campsite__mooringarea__id'] })
-                       
+            print("LINE 1.06", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             clean_data = []
             booking_data = []
             recordFilteredCount = 0
@@ -3109,7 +3112,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                             if int(mug['moorings']) == int(bitem['mooringarea_id']):
                                 in_mg = True 
 
-
+                #print("MLINE 1.07", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 # If user not in mooring group than skip
                 if in_mg is False:
                    continue
@@ -3150,7 +3153,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                           else:
                                skip_row = True
 
-                
+                #print("MLINE 1.08", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
                 if skip_row is True:
                     continue
                 recordFilteredCount = recordFilteredCount + 1
@@ -3255,7 +3258,7 @@ class BookingViewSet(viewsets.ModelViewSet):
                     booking_data.append(bk_list)
                 rowcount = rowcount + 1
             recordsFiltered = recordFilteredCount 
-
+            print("MLINE 1.09", datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
             return Response(OrderedDict([
                 ('recordsTotal', recordsTotal),
                 ('recordsFiltered',recordsFiltered),
