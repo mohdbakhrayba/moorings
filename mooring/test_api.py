@@ -1181,24 +1181,26 @@ class MooringAreaBookingRangeViewSetTestCase(TestSetup):
         """Test the Mooring Area Booking Range View API endpoint POST response when logged in as external user.
         """
         self.client.login(email=self.nonAdminUN, password='pass')
-        mabr = MooringAreaBookingRange.objects.all()[0]
-        id = mabr.id
+        #mabr = MooringAreaBookingRange.objects.all()[0]
+        #id = mabr.id
         url = self.url + str(id) + "/"
-        self.data['id'] = id
-        self.data['open_reason'] = self.opReason.id
-        self.data['campground'] = self.area.id
+        self.data = {}
+        #self.data['id'] = id
+        #self.data['open_reason'] = self.opReason.id
+        #self.data['campground'] = self.area.id
         response = self.client.put(self.url, json.dumps(self.data), partial=True, content_type='application/json')
         self.assertEqual(response.status_code, 403)
 
     def test_api_post_anon(self):
         """Test the Mooring Area Booking Range View API endpoint POST response when not logged in.
         """
-        mabr = MooringAreaBookingRange.objects.all()[0]
-        id = mabr.id
+        #mabr = MooringAreaBookingRange.objects.all()[0]
+        #id = mabr.id
         url = self.url + str(id) + "/"
-        self.data['id'] = id
-        self.data['open_reason'] = self.opReason.id
-        self.data['campground'] = self.area.id
+        self.data = {}
+        #self.data['id'] = id
+        #self.data['open_reason'] = self.opReason.id
+        #self.data['campground'] = self.area.id
         response = self.client.put(self.url, json.dumps(self.data), partial=True, content_type='application/json')
         self.assertEqual(response.status_code, 403)
 
