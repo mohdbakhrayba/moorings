@@ -27,6 +27,7 @@ install:
     - pip install pip --upgrade
     - pip install -r requirements.txt
 before_script:
+    - touch .env
     - psql -c 'create database travis_ci_test;' -U postgres
     - python manage_mo.py migrate --noinput
 script:
