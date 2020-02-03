@@ -3,7 +3,8 @@ from mooring import models
 from mooring import helpers
 
 def mooring_url(request):
-    web_url = request.META['HTTP_HOST']
+    #web_url = request.META['HTTP_HOST']
+    web_url = request.META.get('HTTP_HOST', None)
     if web_url in settings.ROTTNEST_ISLAND_URL:
        template_group = 'rottnest'
        TERMS  = "https://www.rottnestisland.com/~/media/Files/boating-documents/marine-hire-facilities-tcs.pdf?la=en"
