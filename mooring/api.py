@@ -2287,10 +2287,10 @@ def create_admissions_booking(request, *args, **kwargs):
     #Lookup customer
     if request.user.is_anonymous() or request.user.is_staff:
         try:
-            customer = EmailUser.objects.get(email=request.POST.get('email'))
+            customer = EmailUser.objects.get(email=request.POST.get('email').lower())
         except EmailUser.DoesNotExist:
             customer = EmailUser.objects.create(
-                    email=request.POST.get('email'),
+                    email=request.POST.get('email').lower(),
                     first_name=request.POST.get('givenName'),
                     last_name=request.POST.get('lastName')
             )
@@ -3296,10 +3296,10 @@ class BookingViewSet(viewsets.ModelViewSet):
 
             try:
                 emailUser = request.data['customer']
-                customer = EmailUser.objects.get(email = emailUser['email'])
+                customer = EmailUser.objects.get(email = emailUser['email'].lower())
             except EmailUser.DoesNotExist:
                 customer = EmailUser.objects.create(
-                    email = emailUser['email'],
+                    email = emailUser['email'].lower(),
                     first_name = emailUser['first_name'],
                     last_name = emailUser['last_name'],
                     phone_number = emailUser['phone'],
