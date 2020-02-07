@@ -487,14 +487,14 @@ class MooringAreaImage(models.Model):
         self.checksum = self._calculate_checksum(self.image)
         self.image.seek(0)
         if not self.pk:
-            self.image = self.createImage(base64.b64encode(self.image.read()))
+            self.image = self.createImage(base64.b64encode(self.image.read()).decode('ascii'))
         else:
             orig = MooringAreaImage.objects.get(pk=self.pk)
             if orig.image:
                 if orig.checksum != self.checksum:
                     if os.path.isfile(orig.image.path):
                         os.remove(orig.image)
-                    self.image = self.createImage(base64.b64encode(self.image.read()))
+                    self.image = self.createImage(base64.b64encode(self.image.read()).decode('ascii'))
                 else:
                     pass
 
