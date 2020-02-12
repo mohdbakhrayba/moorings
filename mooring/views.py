@@ -1249,10 +1249,10 @@ class MakeBookingsView(TemplateView):
         if request.user.is_anonymous() or request.user.is_staff:
             if booking.old_booking is None:     
                 try:
-                   customer = EmailUser.objects.get(email=form.cleaned_data.get('email'))
+                   customer = EmailUser.objects.get(email=form.cleaned_data.get('email').lower())
                 except EmailUser.DoesNotExist:
                    customer = EmailUser.objects.create(
-                        email=form.cleaned_data.get('email'), 
+                        email=form.cleaned_data.get('email').lower(), 
                         first_name=form.cleaned_data.get('first_name'),
                         last_name=form.cleaned_data.get('last_name'),
                         phone_number=form.cleaned_data.get('phone'),
